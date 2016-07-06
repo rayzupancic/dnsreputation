@@ -8,6 +8,8 @@
 ######################################
 
 import re
+import datetime
+from initlogger import initialize_logger
 
 
 #####################################
@@ -22,9 +24,11 @@ def main():
         for line in fd:
             fields = line.split()
             if len(fields) == 16:
-                print len(fields) 
+                #print len(fields) 
                 mdy= fields[0]
                 time = fields[1]
+                #print mdy + time
+                queryDate = datetime.datetime.strptime(mdy + "," + time , "%m/%d/%Y,%H:%M:%S")
 		domainRaw = fields[15]
                 # take out the leading and trailing character count
 		domainRaw= re.sub(r'^\(\d+\)','',domainRaw)
@@ -32,7 +36,7 @@ def main():
 		domainRaw= re.sub(r'\(\d+\)$','',domainRaw)
                 # take out the middle character count
 		domain	= re.sub(r'\(\d+\)','.',domainRaw)
-                print domain
+                print domain, queryDate
 		
             
 
