@@ -1,8 +1,8 @@
 ############################################################
-# name: initlog.py
-# purpose: setup logging
+# name: initlogger.py
+# purpose: generic routine to setup logging
 #
-# author: rayz - adapted from various routines found on Internet
+# author: rayz - adapted from various routines found on the logging docs
 # Last Modified: 20160707
 ############################################################
 
@@ -12,15 +12,16 @@ import logging
 
 #############################
 # name: initialize_logger(outputDir)
-# input: outputDir str
+# input: str outputDir 
 # output: na
-# purpose: a generic routine handle logging streams
+# purpose: a generic routine to handle logging streams
+#          note that logging.info sends to log and console
 #############################
 def initialize_logger(logDir):
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
-    # create console handler and set level to info
+    # create INFO level with console handler 
     handler = logging.StreamHandler()
     handler.setLevel(logging.INFO)
     formatter = logging.Formatter("%(levelname)s - %(message)s")
