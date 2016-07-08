@@ -13,6 +13,7 @@ import getopt
 import whois
 import logging
 import datetime
+import initlogger as il
 
 ##############
 #  name: usage()
@@ -21,37 +22,6 @@ import datetime
 def usage():
    logging.info( "usage: domainage -a <domain-name>")
 
-
-#############################
-# name: initialize_logger(outputDir)
-# input: outputDir str
-# output: na
-# purpose: a generic routine handle logging streams
-#############################
-def initialize_logger(logDir):
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    # create console handler and set level to info
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(levelname)s - %(message)s")
-    logger.addHandler(handler)
-
-    # create error file handler and set level to error
-    handler = logging.FileHandler(os.path.join(logDir, "error.log"),"w", encoding=None, delay="true"
-)
-    handler.setLevel(logging.ERROR)
-    formatter = logging.Formatter("%(levelname)s - %(message)s")
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-    # create debug file handler and set level to debug
-    handler = logging.FileHandler(os.path.join(logDir, "all.log"),"w")
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(levelname)s - %(message)s")
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
 
 ####################
 # name: is_domain_new(dt)
@@ -88,12 +58,19 @@ def log_domain(dom, dt, filen):
 #  purpose: main routine
 ##############
 def main():
-    # logging dir
-    logDir = os.path.join('.','log')
-    initialize_logger(logDir)
 
-    logging.debug( sys.argv)
-    logging.debug( "length: " + str( len(sys.argv)))
+    # get the process name and create a dir for logging
+    proc = sys.argv[0]
+    procName = proc.split('.')
+    # set up logging path
+    logDir = os.path.join('./log',procName[0])
+    # create logdir if it doesn't exist
+    if not os.path.exists(logDir):
+        os.makedirs(logDir)
+    il.initialize_logger(logDir)
+
+    #logging.debug( sys.argv)
+    #logging.debug( "length: " + str( len(sys.argv)))
     if len(sys.argv) < 2 :
         usage()
         sys.exit(1)
