@@ -6,6 +6,7 @@
 #########################
 
 import MySQLdb
+import time
 
 #########################
 # name: insert_values_to_db()
@@ -14,32 +15,30 @@ import MySQLdb
 # purpose: connect to SQLServer and insert values
 #
 #########################
-def insert_values_to_db( oldAddress,newAddress, lat, lng):
+def insert_values_to_db(dom, date ):
+
+    print date
     # build the connect string
-    connStr = 'Driver={SQL Server};Server=sqlserver;Database=geocoding;uid=sa;pwd=rayzrayz'
+    db = MySQLdb.connect("localhost","domainlookup","domainlookup","domainlookup" )
     #print connStr
 
     # get the connection
-    connection = pyodbc.connect(connStr)
-    connection.autocommit = False
 
-    cursor = connection.cursor()
+    cursor = db.cursor()
 
-    # build the SQL Query
-    SQL = """
-    INSERT INTO geocoding(cobra_old_address, cobra_cleaned_address, cobra_latitude, cobra_longitude)
-  VALUES (?,?,?,?)
-    """
+    # SQL query to INSERT a record into the database.
+    sql = """INSERT INTO domains_tbl(domain_name, domain_create_date) VALUES(%s,%s)"""
+
     try:
-        cursor.execute(SQL,oldAddress, newAddress,lat,lng)
-        connection.commit()
-    except pyodbc.IntegrityError:
-        print('row exists:' + newAddress)
+        cursor.execute(sql,(dom, date,)) 
+        db.commit()
+    except Exception, e:
+      
+        print "rolling back: "  + repr(e)
+        db.rollback()
 
 
-    cursor.close()
-    del cursor
-    connection.close()
+    db.close()
     return()
 
 #########################
@@ -49,29 +48,22 @@ def insert_values_to_db( oldAddress,newAddress, lat, lng):
 # purpose: connect to SQLServer and retrieve values
 #
 #########################
-def get_values_from_db(oldAddress):
+def get_values_from_db(domain):
 
-    # build the connect string
-    connStr = 'Driver={SQL Server};Server=sqlserver;Database=geocoding;uid=sa;pwd=rayzrayz'
-    #print connStr
 
     # get the connection and cursor
     db = MySQLdb.connect("localhost","domainlookup","domainlookup","domainlookup" )
     cursor = db.cursor()
 
     # build the SQL Query
-    SQL = "SELECT * FROM domain_tbl WHERE domain = ? "
+    sql = "SELECT * FROM domain_tbl WHERE domain = %s " 
     try:
-       for row in cursor.execute(SQL,oldAddress):
+       for row in cursor.execute(sql,domain):
            print row
-           print row
-    except pyodbc.Error, err:
-        print err
-
+    except: 
+       print "error in db"
     # close it off
-    cursor.close()
-    del cursor
-    connection.close()
+    db.close()
 
     return row
 
@@ -79,9 +71,10 @@ def get_values_from_db(oldAddress):
 #################
 def main():
 
-    cleanedAddressStr = '3901 S. Sherman St, Englewood CO'
-    addressStr = '3901 S. Sherman St. Englewood, Co 80113'
-    insert_values_to_db(addressStr, cleanedAddressStr, lat, lng)
+    domain = "google.com"
+    dt = time.strptime('07/21/1997','%m/%d/%Y')
+    insert_values_to_db(domain, time.strftime('%Y-%m-%d',dt))
+    #insert_values_to_db(domain, dt)
     #get_values_from_db(addressStr)
 
 
